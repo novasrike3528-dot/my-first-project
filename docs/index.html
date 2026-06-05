@@ -4,92 +4,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Claude Code で構築した Skills・SubAgents・ブラウザ自動化の実験ポートフォリオ">
+  <!-- [Fix] Security: CSP meta tag -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+             font-src https://fonts.gstatic.com;
+             img-src 'self' data:;
+             script-src 'self' 'unsafe-inline';">
   <!-- OGP -->
   <meta property="og:title"       content="A.I. Portfolio — Claude Code Experiments">
   <meta property="og:description" content="コードレビュー・要約・マルチエージェント・ブラウザ自動化を Claude Code で自作した記録">
   <meta property="og:type"        content="website">
   <title>A.I. Portfolio — Claude Code Experiments</title>
 
-  <!-- Noto Serif JP (YAML: font_families.primary) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    /* ═══════════════════════════════════════════════
-       DESIGN TOKENS  —  sourced from YAML spec
-       "Warm Elegant Minimal"
-    ═══════════════════════════════════════════════ */
     :root {
-      /* colors.primary */
       --c-primary:       #e8a4b8;
       --c-primary-dark:  #d48fa3;
-      /* colors.accent */
       --c-accent-soft:   #fff0f3;
-      /* colors.background */
       --c-bg:            #ffffff;
       --c-bg-secondary:  #fafafa;
       --c-bg-tertiary:   #f5f5f5;
       --c-bg-warm:       #faf9f5;
-      /* colors.text  ※ #888888 → #666666 (contrast fix) */
       --c-text:          #333333;
       --c-text-secondary:#666666;
       --c-text-inverse:  #ffffff;
-      /* colors.border */
       --c-border:        #eeeeee;
       --c-border-soft:   #f5f5f5;
-      /* semantic */
       --c-overlay:       rgba(0,0,0,0.4);
       --c-modal-bg:      rgba(255,255,255,0.95);
-      /* badge fix: #e8a4b8 → #8b3a52 (contrast fix) */
       --c-badge-text:    #8b3a52;
-      /* button text fix: white → dark rose (contrast fix) */
       --c-btn-text:      #3d1a24;
-
-      /* typography (YAML: typography.scale) */
       --f-serif: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
       --f-mono:  'Fira Code', 'SF Mono', 'Consolas', monospace;
-
-      /* spacing (YAML: spacing.scale) */
       --sp-xs:   4px;
       --sp-sm:   8px;
       --sp-md:   16px;
       --sp-lg:   24px;
       --sp-xl:   32px;
       --sp-xxl:  48px;
-      --sp-sec:  72px;   /* section: 64px–80px → 72px */
-
-      /* shadows (YAML: shadows) */
+      --sp-sec:  72px;
       --sh-sm:     rgba(0,0,0,0.08) 0 2px 8px;
       --sh-md:     rgba(0,0,0,0.10) 0 30px 80px;
       --sh-accent: rgba(232,164,184,0.4) 0 10px 30px;
-
-      /* layout */
       --max-w: 1200px;
       --pad-x: clamp(1.5rem, 5vw, 2.5rem);
-
-      /* animations (YAML: animations) */
       --dur: 0.3s;
       --ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* ═══════════════ RESET ═══════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     img { display: block; max-width: 100%; }
-    html { scroll-behavior: auto; } /* JS制御のため無効化 */
+    html { scroll-behavior: auto; }
 
-    /* ═══════════════ BASE ═══════════════ */
     body {
       background: var(--c-bg);
       color: var(--c-text);
       font-family: var(--f-serif);
       font-size: 16px;
-      line-height: 1.8;            /* YAML: body.line_height */
+      line-height: 1.8;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ═══════════════ NAV ═══════════════ */
-    /* YAML: components.navigation — minimal horizontal, sticky top */
+    /* NAV */
     #nav {
       position: sticky; top: 0; z-index: 200;
       background: var(--c-bg);
@@ -99,107 +80,85 @@
       padding: 0 var(--pad-x);
     }
     .nav-logo {
-      font-family: var(--f-serif);
-      font-size: 1rem;
-      font-weight: 400;
-      letter-spacing: 0.15em;     /* YAML: h1.letter_spacing */
-      color: var(--c-text);
-      text-decoration: none;
+      font-family: var(--f-serif); font-size: 1rem; font-weight: 400;
+      letter-spacing: 0.15em; color: var(--c-text); text-decoration: none;
     }
     .nav-links { display: flex; gap: var(--sp-xl); }
     .nav-links a {
-      font-size: 0.8125rem;
-      color: var(--c-text);       /* YAML: navigation.link_style.color */
-      text-decoration: none;
-      font-weight: 400;
-      transition: color var(--dur) var(--ease);
+      font-size: 0.8125rem; color: var(--c-text); text-decoration: none;
+      font-weight: 400; transition: color var(--dur) var(--ease);
     }
-    .nav-links a:hover { color: var(--c-primary); } /* YAML: navigation.link_style.hover_color */
+    .nav-links a:hover { color: var(--c-primary); }
     .nav-menu-btn {
       display: none; background: none; border: none;
       cursor: pointer; color: var(--c-text-secondary);
     }
+    /* [Fix] Accessibility: visible focus style on menu button */
+    .nav-menu-btn:focus-visible {
+      outline: 2px solid var(--c-primary); outline-offset: 2px; border-radius: 2px;
+    }
 
-    /* ═══════════════ HERO ═══════════════ */
+    /* HERO */
     #hero {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: var(--sp-sec) var(--pad-x);
-      text-align: center;
+      max-width: var(--max-w); margin: 0 auto;
+      padding: var(--sp-sec) var(--pad-x); text-align: center;
     }
     .hero-badge {
-      /* YAML: components.badge */
-      display: inline-block;
-      background: var(--c-accent-soft);
-      color: var(--c-badge-text);
-      border-radius: 50px;
-      padding: 6px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      display: inline-block; background: var(--c-accent-soft);
+      color: var(--c-badge-text); border-radius: 50px; padding: 6px 16px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
       margin-bottom: var(--sp-xl);
     }
-    /* YAML: section_divider — short centered line above headings */
     .section-divider {
-      width: 48px; height: 3px;
-      background: var(--c-primary);
-      border-radius: 2px;
-      margin: 0 auto var(--sp-lg);
+      width: 48px; height: 3px; background: var(--c-primary);
+      border-radius: 2px; margin: 0 auto var(--sp-lg);
     }
+    /* [Fix] Readability: modifier class instead of inline style */
+    .section-divider--mt { margin-top: 12px; }
+
     h1 {
-      font-size: clamp(1.8rem, 4vw, 2.5rem); /* ≈ YAML h1: 32px */
-      font-weight: 400;
-      line-height: 1.8;
-      letter-spacing: 0.15em;     /* YAML: h1.letter_spacing */
-      color: var(--c-text);
-      margin-bottom: var(--sp-lg);
+      font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 400;
+      line-height: 1.8; letter-spacing: 0.15em;
+      color: var(--c-text); margin-bottom: var(--sp-lg);
     }
-    h1 em { font-style: italic; color: var(--c-primary); }
+    /* [Fix] Accessibility: <em> → <span> for decorative italic */
+    .h1-accent { font-style: italic; color: var(--c-primary); }
+
     .hero-desc {
-      font-size: 1rem;
-      color: var(--c-text-secondary);
-      max-width: 540px;
-      margin: 0 auto var(--sp-xxl);
-      line-height: 1.9;
+      font-size: 1rem; color: var(--c-text-secondary); max-width: 540px;
+      margin: 0 auto var(--sp-xxl); line-height: 1.9;
     }
     .hero-ctas { display: flex; gap: var(--sp-md); justify-content: center; flex-wrap: wrap; }
 
-    /* YAML: components.button */
     .btn {
-      display: inline-block; text-decoration: none;
-      border-radius: 50px;        /* pill shape */
-      padding: 8px 24px;
-      font-family: var(--f-serif);
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: all var(--dur) var(--ease);
-      cursor: pointer; border: none;
+      display: inline-block; text-decoration: none; border-radius: 50px;
+      padding: 8px 24px; font-family: var(--f-serif); font-size: 0.875rem;
+      font-weight: 500; cursor: pointer; border: none;
+      /* [Fix] Performance: transition: all → specific properties */
+      transition: background-color var(--dur) var(--ease),
+                  border-color var(--dur) var(--ease),
+                  box-shadow var(--dur) var(--ease),
+                  color var(--dur) var(--ease);
     }
+    .btn:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
     .btn-primary {
-      background: var(--c-primary);
-      color: var(--c-btn-text);   /* contrast-fixed: #3d1a24 */
+      background: var(--c-primary); color: var(--c-btn-text);
       border: 1px solid var(--c-primary);
     }
     .btn-primary:hover {
-      background: var(--c-primary-dark);
-      border-color: var(--c-primary-dark);
-      box-shadow: var(--sh-accent); /* YAML: button.primary.hover.shadow */
+      background: var(--c-primary-dark); border-color: var(--c-primary-dark);
+      box-shadow: var(--sh-accent);
     }
     .btn-secondary {
-      background: transparent;
-      color: var(--c-text-secondary);
+      background: transparent; color: var(--c-text-secondary);
       border: 1px solid var(--c-border);
     }
-    .btn-secondary:hover {
-      border-color: var(--c-primary);
-      color: var(--c-primary);
-    }
+    .btn-secondary:hover { border-color: var(--c-primary); color: var(--c-primary); }
 
-    /* ═══════════════ METRICS ═══════════════ */
+    /* METRICS */
     #metrics {
       background: var(--c-bg-warm);
-      border-top: 1px solid var(--c-border);
-      border-bottom: 1px solid var(--c-border);
+      border-top: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border);
     }
     .metrics-inner {
       max-width: var(--max-w); margin: 0 auto;
@@ -207,102 +166,67 @@
     }
     .metric {
       padding: var(--sp-xxl) var(--sp-xl);
-      border-right: 1px solid var(--c-border);
-      text-align: center;
+      border-right: 1px solid var(--c-border); text-align: center;
     }
     .metric:last-child { border-right: none; }
     .metric-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;    /* YAML: label */
-      text-transform: uppercase;
-      color: var(--c-text-secondary);
-      margin-bottom: var(--sp-sm);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--c-text-secondary); margin-bottom: var(--sp-sm);
     }
     .metric-value {
-      font-size: clamp(1.8rem, 3vw, 2.4rem);
-      font-weight: 400;
-      color: var(--c-primary-dark);
-      line-height: 1;
+      font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 400;
+      color: var(--c-primary-dark); line-height: 1;
     }
-    .metric-sub {
-      font-size: 12px;
-      color: var(--c-text-secondary);
-      margin-top: var(--sp-xs);
-    }
+    .metric-sub { font-size: 12px; color: var(--c-text-secondary); margin-top: var(--sp-xs); }
 
-    /* ═══════════════ SECTION COMMON ═══════════════ */
-    .section {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: var(--sp-sec) var(--pad-x);
-    }
-    .section-header {
-      text-align: center;
-      margin-bottom: clamp(2rem, 4vw, 3.5rem);
-    }
+    /* SECTION */
+    .section { max-width: var(--max-w); margin: 0 auto; padding: var(--sp-sec) var(--pad-x); }
+    /* [Fix] Readability: section background as class instead of inline style */
+    .section--warm { background: var(--c-bg-warm); }
+    .section-header { text-align: center; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
     .section-no {
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--c-text-secondary);
-      margin-bottom: var(--sp-sm);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--c-text-secondary); margin-bottom: var(--sp-sm);
     }
     h2 {
-      font-size: clamp(1.3rem, 2.5vw, 1.5rem); /* YAML: h2 — 24px */
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      line-height: 1.6;
-      color: var(--c-text);
+      font-size: clamp(1.3rem, 2.5vw, 1.5rem); font-weight: 700;
+      letter-spacing: 0.05em; line-height: 1.6; color: var(--c-text);
     }
     .divider { border: none; border-top: 1px solid var(--c-border); }
 
-    /* ═══════════════ FILTER TABS ═══════════════ */
+    /* FILTER TABS */
     .filter-wrap { text-align: center; margin-bottom: var(--sp-xxl); }
     .filter-tabs { display: inline-flex; gap: var(--sp-sm); flex-wrap: wrap; justify-content: center; }
     .filter-tab {
-      padding: 6px 20px;
-      border-radius: 50px;
-      font-size: 0.8125rem;
-      font-family: var(--f-serif);
-      border: 1px solid var(--c-border);
-      background: transparent;
-      color: var(--c-text-secondary);
-      cursor: pointer;
-      transition: all var(--dur) var(--ease);
+      padding: 6px 20px; border-radius: 50px; font-size: 0.8125rem;
+      font-family: var(--f-serif); border: 1px solid var(--c-border);
+      background: transparent; color: var(--c-text-secondary); cursor: pointer;
+      transition: background-color var(--dur) var(--ease),
+                  border-color var(--dur) var(--ease),
+                  color var(--dur) var(--ease);
     }
     .filter-tab.active, .filter-tab:hover {
-      background: var(--c-accent-soft);
-      border-color: var(--c-primary);
-      color: var(--c-badge-text);
+      background: var(--c-accent-soft); border-color: var(--c-primary); color: var(--c-badge-text);
     }
+    .filter-tab:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
 
-    /* ═══════════════ CARDS ═══════════════ */
-    /* YAML: layout.grid — 3 columns, 24px gap */
+    /* CARDS */
     .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--sp-lg);          /* YAML: layout.grid.gap = 24px */
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-lg);
     }
-    /* YAML: components.card */
     .card {
-      background: var(--c-bg-secondary);
-      border: 1px solid var(--c-border);
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex; flex-direction: column;
+      background: var(--c-bg-secondary); border: 1px solid var(--c-border);
+      border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
       transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
     }
+    /* [Fix] Performance: will-change hint for GPU compositing */
     .card:hover {
-      transform: translateY(-4px);   /* YAML: card.hover.transform */
-      box-shadow: var(--sh-sm);       /* YAML: card.hover.shadow */
+      will-change: transform;
+      transform: translateY(-4px); box-shadow: var(--sh-sm);
     }
-    /* YAML: components.image_in_card — aspect-ratio 4:3 */
     .card-thumb {
-      position: relative;
-      aspect-ratio: 4/3;
-      overflow: hidden;
-      cursor: pointer;
-      background: var(--c-bg-tertiary);
+      position: relative; aspect-ratio: 4/3; overflow: hidden;
+      cursor: pointer; background: var(--c-bg-tertiary);
     }
     .card-thumb img {
       width: 100%; height: 100%; object-fit: cover;
@@ -312,65 +236,51 @@
     .card-thumb-overlay {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      background: var(--c-overlay);
-      opacity: 0; transition: opacity var(--dur) var(--ease);
-      color: var(--c-text-inverse);
-      font-size: 0.8125rem; letter-spacing: 0.1em;
+      background: var(--c-overlay); opacity: 0;
+      transition: opacity var(--dur) var(--ease);
+      color: var(--c-text-inverse); font-size: 0.8125rem; letter-spacing: 0.1em;
     }
     .card-thumb:hover .card-thumb-overlay { opacity: 1; }
+    /* [Fix] Accessibility: focus style for role="button" elements */
+    .card-thumb:focus-visible, .gallery-thumb:focus-visible {
+      outline: 2px solid var(--c-primary); outline-offset: -2px;
+    }
+    .card-thumb:focus-visible .card-thumb-overlay { opacity: 1; }
     .thumb-count {
       position: absolute; bottom: 8px; right: 10px;
-      background: rgba(0,0,0,0.5);
-      color: #fff; font-size: 11px;
-      padding: 2px 8px; border-radius: 50px;
+      background: rgba(0,0,0,0.5); color: #fff; font-size: 11px;
+      padding: 2px 8px; border-radius: 50px; pointer-events: none;
     }
     .card-body { padding: var(--sp-lg); flex: 1; display: flex; flex-direction: column; }
     h3 {
-      font-size: 1.125rem; /* YAML: h3 — 18px */
-      font-weight: 700;
-      line-height: 1.5;
-      color: var(--c-text);
-      margin-bottom: var(--sp-sm);
+      font-size: 1.125rem; font-weight: 700; line-height: 1.5;
+      color: var(--c-text); margin-bottom: var(--sp-sm);
     }
     .card-tags { display: flex; gap: var(--sp-xs); flex-wrap: wrap; margin-bottom: var(--sp-md); }
-    /* YAML: components.badge */
     .tag {
-      background: var(--c-accent-soft);
-      color: var(--c-badge-text);
-      border-radius: 50px;
-      padding: 4px 12px;
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.03em;
+      background: var(--c-accent-soft); color: var(--c-badge-text);
+      border-radius: 50px; padding: 4px 12px; font-size: 11px; font-weight: 600;
     }
     .tag-outline {
-      background: transparent;
-      color: var(--c-text-secondary);
-      border: 1px solid var(--c-border);
-      border-radius: 50px;
-      padding: 4px 12px;
-      font-size: 11px; font-weight: 600;
+      background: transparent; color: var(--c-text-secondary);
+      border: 1px solid var(--c-border); border-radius: 50px;
+      padding: 4px 12px; font-size: 11px; font-weight: 600;
     }
     .card-desc {
-      font-size: 0.875rem;
-      color: var(--c-text-secondary);
-      line-height: 1.85; flex: 1;
-      margin-bottom: var(--sp-lg);
+      font-size: 0.875rem; color: var(--c-text-secondary);
+      line-height: 1.85; flex: 1; margin-bottom: var(--sp-lg);
     }
     .card-result {
-      border-top: 1px solid var(--c-border-soft);
-      padding-top: var(--sp-md);
-      font-size: 0.8125rem;
-      color: var(--c-text-secondary);
+      border-top: 1px solid var(--c-border-soft); padding-top: var(--sp-md);
+      font-size: 0.8125rem; color: var(--c-text-secondary);
       display: flex; align-items: center; gap: var(--sp-sm);
     }
     .result-dot {
       width: 6px; height: 6px; border-radius: 50%;
       background: var(--c-primary); flex-shrink: 0;
     }
-    /* sub-gallery strip */
     .card-gallery {
-      display: flex; gap: 1px;
-      background: var(--c-border);
+      display: flex; gap: 1px; background: var(--c-border);
       border-top: 1px solid var(--c-border);
     }
     .gallery-thumb {
@@ -381,14 +291,11 @@
       width: 100%; height: 100%; object-fit: cover;
       opacity: 0.65; transition: opacity var(--dur) var(--ease);
     }
-    .gallery-thumb:hover img { opacity: 1; }
+    .gallery-thumb:hover img, .gallery-thumb:focus-visible img { opacity: 1; }
 
-    /* ═══════════════ TIMELINE ═══════════════ */
+    /* TIMELINE */
     .timeline { position: relative; }
-    .tl-spine {
-      position: absolute; left: 0; top: 0; bottom: 0;
-      width: 1px; background: var(--c-border);
-    }
+    .tl-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--c-border); }
     .tl-item {
       display: grid; grid-template-columns: 160px 1fr;
       gap: var(--sp-xxl); padding-left: var(--sp-xl);
@@ -396,138 +303,99 @@
     }
     .tl-item:last-child { padding-bottom: 0; }
     .tl-item::before {
-      content: '';
-      position: absolute; left: -5px; top: 5px;
+      content: ''; position: absolute; left: -5px; top: 5px;
       width: 10px; height: 10px; border-radius: 50%;
       background: var(--c-bg); border: 2px solid var(--c-border);
     }
     .tl-item.latest::before {
-      background: var(--c-primary);
-      border-color: var(--c-primary);
+      background: var(--c-primary); border-color: var(--c-primary);
       box-shadow: var(--sh-accent);
     }
-    .tl-date {
-      font-size: 0.8125rem;
-      color: var(--c-text-secondary);
-      padding-top: 4px;
-    }
+    .tl-date { font-size: 0.8125rem; color: var(--c-text-secondary); padding-top: 4px; }
+    /* [Fix] Accessibility: tl-entry contrast #e8a4b8(1.82) → #8b3a52(5.82) on #faf9f5 */
     .tl-entry {
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--c-primary); margin-top: 4px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--c-badge-text); margin-top: 4px;
     }
-    .tl-title {
-      font-size: 1.125rem; font-weight: 700;
-      color: var(--c-text); margin-bottom: var(--sp-sm);
-    }
-    .tl-desc {
-      font-size: 0.875rem;
-      color: var(--c-text-secondary); line-height: 1.85;
-    }
+    .tl-title { font-size: 1.125rem; font-weight: 700; color: var(--c-text); margin-bottom: var(--sp-sm); }
+    .tl-desc { font-size: 0.875rem; color: var(--c-text-secondary); line-height: 1.85; }
 
-    /* ═══════════════ STACK ═══════════════ */
+    /* STACK */
     .stack-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: var(--sp-lg);
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sp-lg);
     }
     .stack-item {
-      background: var(--c-bg-warm);
-      border: 1px solid var(--c-border);
-      border-radius: 8px;
-      padding: var(--sp-lg);
+      background: var(--c-bg-warm); border: 1px solid var(--c-border);
+      border-radius: 8px; padding: var(--sp-lg);
       transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
     }
-    .stack-item:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--sh-sm);
-    }
-    .stack-name {
-      font-size: 0.9375rem; font-weight: 700;
-      color: var(--c-text); margin-bottom: var(--sp-xs);
-    }
+    /* [Fix] Performance: will-change hint */
+    .stack-item:hover { will-change: transform; transform: translateY(-4px); box-shadow: var(--sh-sm); }
+    .stack-name { font-size: 0.9375rem; font-weight: 700; color: var(--c-text); margin-bottom: var(--sp-xs); }
     .stack-role {
-      font-size: 12px; font-weight: 600;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--c-text-secondary);
+      font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--c-text-secondary);
     }
 
-    /* ═══════════════ FOOTER ═══════════════ */
-    footer {
-      background: var(--c-bg-warm);
-      border-top: 1px solid var(--c-border);
-    }
+    /* FOOTER */
+    footer { background: var(--c-bg-warm); border-top: 1px solid var(--c-border); }
     .footer-inner {
-      max-width: var(--max-w); margin: 0 auto;
-      padding: var(--sp-xxl) var(--pad-x);
-      display: flex; justify-content: space-between;
-      align-items: center; flex-wrap: wrap; gap: var(--sp-md);
+      max-width: var(--max-w); margin: 0 auto; padding: var(--sp-xxl) var(--pad-x);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--sp-md);
     }
     .footer-logo {
       font-family: var(--f-serif); font-size: 0.9375rem;
-      letter-spacing: 0.15em; color: var(--c-text);
-      text-decoration: none;
+      letter-spacing: 0.15em; color: var(--c-text); text-decoration: none;
     }
-    .footer-copy {
-      font-size: 12px; color: var(--c-text-secondary);
-    }
+    .footer-copy { font-size: 12px; color: var(--c-text-secondary); }
+    /* [Fix] Security: external link color (noreferrer added in HTML) */
     .footer-copy a { color: var(--c-primary); text-decoration: none; }
 
-    /* ═══════════════ LIGHTBOX ═══════════════ */
-    /* YAML: components.modal */
+    /* LIGHTBOX */
     #lightbox {
       display: none; position: fixed; inset: 0; z-index: 500;
-      background: var(--c-overlay);
-      align-items: center; justify-content: center;
+      background: var(--c-overlay); align-items: center; justify-content: center;
       padding: var(--sp-lg);
     }
     #lightbox.open { display: flex; }
     .lb-inner {
-      position: relative;
-      background: var(--c-modal-bg);
-      border-radius: 12px;           /* YAML: modal.border_radius */
-      box-shadow: var(--sh-md);       /* YAML: modal.shadow */
-      padding: var(--sp-lg);
-      max-width: 960px; width: 100%;
+      position: relative; background: var(--c-modal-bg); border-radius: 12px;
+      box-shadow: var(--sh-md); padding: var(--sp-lg); max-width: 960px; width: 100%;
     }
     .lb-img { width: 100%; border-radius: 6px; display: block; }
+    /* [Fix] Accessibility: error state for broken lightbox image */
+    .lb-img[src=""] { min-height: 200px; background: var(--c-bg-tertiary); }
     .lb-close {
       position: absolute; top: var(--sp-md); right: var(--sp-lg);
       background: none; border: none; cursor: pointer;
       font-size: 0.8125rem; font-family: var(--f-serif);
-      color: var(--c-text-secondary);
-      transition: color var(--dur) var(--ease);
+      color: var(--c-text-secondary); transition: color var(--dur) var(--ease);
     }
     .lb-close:hover { color: var(--c-primary); }
+    .lb-close:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; border-radius: 2px; }
     .lb-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--c-bg);
-      border: 1px solid var(--c-border);
-      color: var(--c-text-secondary);
+      width: 40px; height: 40px; border-radius: 50%; background: var(--c-bg);
+      border: 1px solid var(--c-border); color: var(--c-text-secondary);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 1rem;
-      transition: all var(--dur) var(--ease);
+      cursor: pointer; font-size: 1rem; transition: all var(--dur) var(--ease);
     }
-    .lb-nav:hover { border-color: var(--c-primary); color: var(--c-primary); }
+    .lb-nav:hover, .lb-nav:focus-visible {
+      border-color: var(--c-primary); color: var(--c-primary); outline: none;
+    }
     .lb-prev { left: -56px; }
     .lb-next { right: -56px; }
     .lb-caption {
-      margin-top: var(--sp-sm);
-      font-size: 12px; color: var(--c-text-secondary);
-      text-align: center;
+      margin-top: var(--sp-sm); font-size: 12px;
+      color: var(--c-text-secondary); text-align: center;
     }
 
-    /* ═══════════════ SCROLL REVEAL ═══════════════ */
-    /* YAML: animations.effects.fade_in */
-    .reveal {
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
-    }
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
     .reveal.visible { opacity: 1; transform: none; }
 
-    /* ═══════════════ RESPONSIVE ═══════════════ */
-    /* YAML: layout.grid.responsive — tablet: 2col, mobile: 1col */
+    /* RESPONSIVE */
     @media (max-width: 900px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
       .metrics-inner { grid-template-columns: repeat(2, 1fr); }
@@ -542,8 +410,7 @@
       .nav-links.open {
         display: flex; flex-direction: column; gap: var(--sp-xl);
         position: fixed; inset: 60px 0 0;
-        background: var(--c-modal-bg);
-        align-items: center; justify-content: center;
+        background: var(--c-modal-bg); align-items: center; justify-content: center;
         z-index: 199;
       }
       .nav-menu-btn { display: block; }
@@ -554,27 +421,29 @@
 </head>
 <body>
 
-<!-- ── NAV ── -->
+<!-- NAV -->
 <nav id="nav">
   <a href="#hero" class="nav-logo">A.I. Portfolio</a>
   <div class="nav-links" id="navLinks">
-    <a href="#projects" onclick="closeMenu()">Projects</a>
-    <a href="#log"      onclick="closeMenu()">Dev Log</a>
-    <a href="#stack"    onclick="closeMenu()">Stack</a>
+    <a href="#projects">Projects</a>
+    <a href="#log">Dev Log</a>
+    <a href="#stack">Stack</a>
   </div>
-  <button class="nav-menu-btn" onclick="toggleMenu()" aria-label="メニュー">
-    <svg width="20" height="14" viewBox="0 0 20 14" fill="currentColor">
+  <button class="nav-menu-btn" id="navMenuBtn" aria-label="メニュー" aria-expanded="false" aria-controls="navLinks">
+    <svg width="20" height="14" viewBox="0 0 20 14" fill="currentColor" aria-hidden="true">
       <rect width="20" height="2"/><rect y="6" width="20" height="2"/><rect y="12" width="20" height="2"/>
     </svg>
   </button>
 </nav>
 
-<!-- ── HERO ── -->
+<!-- HERO -->
 <section id="hero">
-  <div class="section-divider reveal"></div>
+  <!-- [Fix] Accessibility: aria-hidden on decorative divider -->
+  <div class="section-divider reveal" aria-hidden="true"></div>
   <span class="hero-badge reveal">Claude Code — AI Automation</span>
   <h1 class="reveal">
-    Skills, Agents &amp; <em>Browser</em> を<br>自分で設計した記録
+    <!-- [Fix] Accessibility: <em>(semantic emphasis) → <span>(decorative italic) -->
+    Skills, Agents &amp; <span class="h1-accent">Browser</span> を<br>自分で設計した記録
   </h1>
   <p class="hero-desc reveal">
     コードレビュー・要約・マルチエージェントワークフロー・ブラウザ自動化——<br>
@@ -586,45 +455,29 @@
   </div>
 </section>
 
-<!-- ── METRICS ── -->
+<!-- METRICS -->
 <div id="metrics">
   <div class="metrics-inner">
-    <div class="metric reveal">
-      <div class="metric-label">Projects</div>
-      <div class="metric-value">04</div>
-      <div class="metric-sub">deployed</div>
-    </div>
-    <div class="metric reveal">
-      <div class="metric-label">Custom Agents</div>
-      <div class="metric-value">07</div>
-      <div class="metric-sub">built from scratch</div>
-    </div>
-    <div class="metric reveal">
-      <div class="metric-label">Quality Δ</div>
-      <div class="metric-value">+10</div>
-      <div class="metric-sub">33 → 43 / 50</div>
-    </div>
-    <div class="metric reveal">
-      <div class="metric-label">Sites Automated</div>
-      <div class="metric-value">03</div>
-      <div class="metric-sub">via MCP chrome</div>
-    </div>
+    <div class="metric reveal"><div class="metric-label">Projects</div><div class="metric-value">04</div><div class="metric-sub">deployed</div></div>
+    <div class="metric reveal"><div class="metric-label">Custom Agents</div><div class="metric-value">07</div><div class="metric-sub">built from scratch</div></div>
+    <div class="metric reveal"><div class="metric-label">Quality Δ</div><div class="metric-value">+10</div><div class="metric-sub">33 → 43 / 50</div></div>
+    <div class="metric reveal"><div class="metric-label">Sites Automated</div><div class="metric-value">03</div><div class="metric-sub">via MCP chrome</div></div>
   </div>
 </div>
 
 <hr class="divider">
 
-<!-- ── PROJECTS ── -->
+<!-- PROJECTS -->
 <section id="projects">
   <div class="section">
     <div class="section-header reveal">
       <div class="section-no">01 — Projects</div>
-      <div class="section-divider" style="margin-top:12px;"></div>
+      <div class="section-divider section-divider--mt" aria-hidden="true"></div>
       <h2>構築した成果物</h2>
     </div>
 
     <div class="filter-wrap reveal">
-      <div class="filter-tabs">
+      <div class="filter-tabs" role="group" aria-label="カテゴリフィルター">
         <button class="filter-tab active" data-filter="all">すべて</button>
         <button class="filter-tab" data-filter="skill">Skills</button>
         <button class="filter-tab" data-filter="agent">Agents</button>
@@ -632,14 +485,17 @@
       </div>
     </div>
 
-    <div class="cards-grid">
+    <div class="cards-grid" id="cardsGrid">
 
       <!-- Card 1: code-reviewer -->
       <article class="card reveal" data-category="agent">
-        <div class="card-thumb" onclick="openLightbox(0)" role="button" aria-label="code-reviewerのスクリーンショットを拡大">
-          <img src="./images/code-reviewer-report.png" alt="code-reviewer — セキュリティレポート" loading="lazy">
-          <div class="card-thumb-overlay">拡大表示</div>
-          <span class="thumb-count">1 / 4</span>
+        <!-- [Fix] Accessibility+Readability: inline onclick → data-lb-index + event delegation -->
+        <!-- [Fix] Accessibility: tabindex="0" added to role="button" divs -->
+        <div class="card-thumb" data-lb-index="0" role="button" tabindex="0" aria-label="code-reviewerのスクリーンショットを拡大">
+          <!-- [Fix] Performance: width/height from actual image dimensions (922x733) -->
+          <img src="./images/code-reviewer-report.png" alt="code-reviewer — セキュリティレポート" loading="lazy" width="922" height="733">
+          <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
+          <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
           <h3>code-reviewer</h3>
@@ -654,24 +510,24 @@
             Before / After の修正コードをレポート形式で提示する。
           </p>
           <div class="card-result">
-            <span class="result-dot"></span>
+            <span class="result-dot" aria-hidden="true"></span>
             致命的 3件 + 改善 5件を検出・修正コード提示
           </div>
         </div>
-        <div class="card-gallery">
-          <div class="gallery-thumb" onclick="openLightbox(0)" role="button" aria-label="画像1"><img src="./images/code-reviewer-report.png"  alt="レポート全文" loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(1)" role="button" aria-label="画像2"><img src="./images/code-reviewer-issues.png"  alt="問題一覧"    loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(2)" role="button" aria-label="画像3"><img src="./images/code-reviewer-fixes-1.png" alt="修正コード1"  loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(3)" role="button" aria-label="画像4"><img src="./images/code-reviewer-fixes-2.png" alt="修正コード2"  loading="lazy"></div>
+        <div class="card-gallery" aria-label="code-reviewerのギャラリー">
+          <div class="gallery-thumb" data-lb-index="0" role="button" tabindex="0" aria-label="画像1: レポート全文"><img src="./images/code-reviewer-report.png"  alt="レポート全文"  loading="lazy" width="922" height="733"></div>
+          <div class="gallery-thumb" data-lb-index="1" role="button" tabindex="0" aria-label="画像2: 問題一覧"><img src="./images/code-reviewer-issues.png"  alt="問題一覧"      loading="lazy" width="810" height="167"></div>
+          <div class="gallery-thumb" data-lb-index="2" role="button" tabindex="0" aria-label="画像3: 修正コード1"><img src="./images/code-reviewer-fixes-1.png" alt="修正コード1"    loading="lazy" width="901" height="656"></div>
+          <div class="gallery-thumb" data-lb-index="3" role="button" tabindex="0" aria-label="画像4: 修正コード2"><img src="./images/code-reviewer-fixes-2.png" alt="修正コード2"    loading="lazy" width="910" height="607"></div>
         </div>
       </article>
 
       <!-- Card 2: summarize -->
       <article class="card reveal" data-category="skill">
-        <div class="card-thumb" onclick="openLightbox(4)" role="button" aria-label="summarizeスキルのスクリーンショットを拡大">
-          <img src="./images/summarize-output.png" alt="summarize — 要約出力" loading="lazy">
-          <div class="card-thumb-overlay">拡大表示</div>
-          <span class="thumb-count">1 / 3</span>
+        <div class="card-thumb" data-lb-index="4" role="button" tabindex="0" aria-label="summarizeスキルのスクリーンショットを拡大">
+          <img src="./images/summarize-output.png" alt="summarize — 要約出力" loading="lazy" width="1443" height="550">
+          <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
+          <span class="thumb-count" aria-hidden="true">1 / 3</span>
         </div>
         <div class="card-body">
           <h3>summarize スキル</h3>
@@ -686,23 +542,23 @@
             類似ファイルをサジェストするエラーハンドリングも実装。
           </p>
           <div class="card-result">
-            <span class="result-dot"></span>
+            <span class="result-dot" aria-hidden="true"></span>
             /summarize README.md 300 → 目標文字数±10%に自動調整
           </div>
         </div>
-        <div class="card-gallery">
-          <div class="gallery-thumb" onclick="openLightbox(4)" role="button" aria-label="画像1"><img src="./images/summarize-output.png"  alt="要約出力"  loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(5)" role="button" aria-label="画像2"><img src="./images/summarize-update.png"  alt="スキル更新" loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(6)" role="button" aria-label="画像3"><img src="./images/summarize-report.png"  alt="改善提案付" loading="lazy"></div>
+        <div class="card-gallery" aria-label="summarizeのギャラリー">
+          <div class="gallery-thumb" data-lb-index="4" role="button" tabindex="0" aria-label="画像1: 要約出力"><img src="./images/summarize-output.png"  alt="要約出力"   loading="lazy" width="1443" height="550"></div>
+          <div class="gallery-thumb" data-lb-index="5" role="button" tabindex="0" aria-label="画像2: スキル更新"><img src="./images/summarize-update.png"  alt="スキル更新"  loading="lazy" width="1296" height="626"></div>
+          <div class="gallery-thumb" data-lb-index="6" role="button" tabindex="0" aria-label="画像3: 改善提案付"><img src="./images/summarize-report.png"  alt="改善提案付"  loading="lazy" width="1391" height="805"></div>
         </div>
       </article>
 
       <!-- Card 3: build-and-review -->
       <article class="card reveal" data-category="agent">
-        <div class="card-thumb" onclick="openLightbox(7)" role="button" aria-label="Build &amp; Reviewのスクリーンショットを拡大">
-          <img src="./images/build-review-report.png" alt="Build &amp; Review — 最終レポート" loading="lazy">
-          <div class="card-thumb-overlay">拡大表示</div>
-          <span class="thumb-count">1 / 4</span>
+        <div class="card-thumb" data-lb-index="7" role="button" tabindex="0" aria-label="Build &amp; Reviewのスクリーンショットを拡大">
+          <img src="./images/build-review-report.png" alt="Build &amp; Review — 最終レポート" loading="lazy" width="1002" height="785">
+          <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
+          <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
           <h3>Build &amp; Review</h3>
@@ -717,24 +573,24 @@
             品質スコアを定量評価し、改善前後の差分を出力する。
           </p>
           <div class="card-result">
-            <span class="result-dot"></span>
+            <span class="result-dot" aria-hidden="true"></span>
             品質スコア 33/50 → 43/50（+10 pts）APPROVED
           </div>
         </div>
-        <div class="card-gallery">
-          <div class="gallery-thumb" onclick="openLightbox(7)"  role="button" aria-label="画像1"><img src="./images/build-review-report.png"  alt="最終レポート"   loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(8)"  role="button" aria-label="画像2"><img src="./images/build-review-phases.png"  alt="フェーズ詳細"   loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(9)"  role="button" aria-label="画像3"><img src="./images/build-review-score.png"   alt="品質スコア"    loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(10)" role="button" aria-label="画像4"><img src="./images/build-review-agents.png"  alt="エージェント一覧" loading="lazy"></div>
+        <div class="card-gallery" aria-label="Build &amp; Reviewのギャラリー">
+          <div class="gallery-thumb" data-lb-index="7"  role="button" tabindex="0" aria-label="画像1: 最終レポート"><img src="./images/build-review-report.png"  alt="最終レポート"    loading="lazy" width="1002" height="785"></div>
+          <div class="gallery-thumb" data-lb-index="8"  role="button" tabindex="0" aria-label="画像2: フェーズ詳細"><img src="./images/build-review-phases.png"  alt="フェーズ詳細"    loading="lazy" width="1102" height="723"></div>
+          <div class="gallery-thumb" data-lb-index="9"  role="button" tabindex="0" aria-label="画像3: 品質スコア"><img src="./images/build-review-score.png"   alt="品質スコア"     loading="lazy" width="1322" height="663"></div>
+          <div class="gallery-thumb" data-lb-index="10" role="button" tabindex="0" aria-label="画像4: エージェント一覧"><img src="./images/build-review-agents.png"  alt="エージェント一覧" loading="lazy" width="511"  height="505"></div>
         </div>
       </article>
 
       <!-- Card 4: chrome automation -->
       <article class="card reveal" data-category="browser">
-        <div class="card-thumb" onclick="openLightbox(11)" role="button" aria-label="Chrome自動化のスクリーンショットを拡大">
-          <img src="./images/chrome-connected.png" alt="Chrome Automation — 接続完了" loading="lazy">
-          <div class="card-thumb-overlay">拡大表示</div>
-          <span class="thumb-count">1 / 4</span>
+        <div class="card-thumb" data-lb-index="11" role="button" tabindex="0" aria-label="Chrome自動化のスクリーンショットを拡大">
+          <img src="./images/chrome-connected.png" alt="Chrome Automation — 接続完了" loading="lazy" width="1439" height="416">
+          <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
+          <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
           <h3>Chrome Automation</h3>
@@ -749,15 +605,15 @@
             一括取得してリスト形式で整形出力するパイプラインを構築。
           </p>
           <div class="card-result">
-            <span class="result-dot"></span>
+            <span class="result-dot" aria-hidden="true"></span>
             3サイト × トップニュースを自動取得・整形
           </div>
         </div>
-        <div class="card-gallery">
-          <div class="gallery-thumb" onclick="openLightbox(11)" role="button" aria-label="画像1"><img src="./images/chrome-connected.png"     alt="接続完了"     loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(12)" role="button" aria-label="画像2"><img src="./images/chrome-command.png"        alt="コマンド解説"  loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(13)" role="button" aria-label="画像3"><img src="./images/chrome-news-1.png"         alt="取得結果1"    loading="lazy"></div>
-          <div class="gallery-thumb" onclick="openLightbox(14)" role="button" aria-label="画像4"><img src="./images/chrome-news-rendered.png"  alt="レンダリング結果" loading="lazy"></div>
+        <div class="card-gallery" aria-label="Chrome Automationのギャラリー">
+          <div class="gallery-thumb" data-lb-index="11" role="button" tabindex="0" aria-label="画像1: 接続完了"><img src="./images/chrome-connected.png"     alt="接続完了"      loading="lazy" width="1439" height="416"></div>
+          <div class="gallery-thumb" data-lb-index="12" role="button" tabindex="0" aria-label="画像2: コマンド解説"><img src="./images/chrome-command.png"        alt="コマンド解説"   loading="lazy" width="1050" height="467"></div>
+          <div class="gallery-thumb" data-lb-index="13" role="button" tabindex="0" aria-label="画像3: 取得結果"><img src="./images/chrome-news-1.png"         alt="取得結果1"     loading="lazy" width="951"  height="754"></div>
+          <div class="gallery-thumb" data-lb-index="14" role="button" tabindex="0" aria-label="画像4: レンダリング結果"><img src="./images/chrome-news-rendered.png"  alt="レンダリング結果" loading="lazy" width="417"  height="723"></div>
         </div>
       </article>
 
@@ -767,22 +623,20 @@
 
 <hr class="divider">
 
-<!-- ── DEV LOG ── -->
-<section id="log" style="background: var(--c-bg-warm);">
+<!-- DEV LOG -->
+<!-- [Fix] Readability: background moved from inline style to class -->
+<section id="log" class="section--warm">
   <div class="section">
     <div class="section-header reveal">
       <div class="section-no">02 — Dev Log</div>
-      <div class="section-divider" style="margin-top:12px;"></div>
+      <div class="section-divider section-divider--mt" aria-hidden="true"></div>
       <h2>開発の軌跡</h2>
     </div>
     <div class="timeline">
-      <div class="tl-spine"></div>
+      <div class="tl-spine" aria-hidden="true"></div>
 
       <div class="tl-item reveal">
-        <div>
-          <div class="tl-date">2026.05.30</div>
-          <div class="tl-entry">Entry 001</div>
-        </div>
+        <div><div class="tl-date">2026.05.30</div><div class="tl-entry">Entry 001</div></div>
         <div>
           <div class="tl-title">Security Review Agent</div>
           <p class="tl-desc">code-reviewer SubAgent を構築。sample.py の脆弱性（SQLi・MD5・ハードコードキー）を自動検出し、パラメータ化クエリ・pbkdf2_hmac・環境変数への修正コードを提示できるようになった。</p>
@@ -790,10 +644,7 @@
       </div>
 
       <div class="tl-item reveal">
-        <div>
-          <div class="tl-date">2026.06.02</div>
-          <div class="tl-entry">Entry 002</div>
-        </div>
+        <div><div class="tl-date">2026.06.02</div><div class="tl-entry">Entry 002</div></div>
         <div>
           <div class="tl-title">Summarize Skill 拡張</div>
           <p class="tl-desc">基本的な要約に加え、改善提案3件・文字数オプション・ファイル未存在時のサジェスト機能を追加。/summarize コマンドが実用レベルに到達した。</p>
@@ -801,10 +652,7 @@
       </div>
 
       <div class="tl-item reveal">
-        <div>
-          <div class="tl-date">2026.06.03</div>
-          <div class="tl-entry">Entry 003</div>
-        </div>
+        <div><div class="tl-date">2026.06.03</div><div class="tl-entry">Entry 003</div></div>
         <div>
           <div class="tl-title">Build &amp; Review Workflow</div>
           <p class="tl-desc">Analyzer・Builder・Reviewer の3エージェントを連携させ、エージェント定義ファイル自体を自動改善するワークフローを実現。品質スコアを33/50から43/50に引き上げた。</p>
@@ -812,10 +660,7 @@
       </div>
 
       <div class="tl-item latest reveal">
-        <div>
-          <div class="tl-date">2026.06.04</div>
-          <div class="tl-entry">Entry 004 — Latest</div>
-        </div>
+        <div><div class="tl-date">2026.06.04</div><div class="tl-entry">Entry 004 — Latest</div></div>
         <div>
           <div class="tl-title">Chrome Browser Automation</div>
           <p class="tl-desc">claude-in-chrome MCP で Chrome に接続し、Yahoo!・NHK・朝日新聞の3サイトを自動巡回してトップニュースを一括取得するパイプラインを構築。ブラウザ操作の自動化が実用段階に入った。</p>
@@ -827,12 +672,12 @@
 
 <hr class="divider">
 
-<!-- ── STACK ── -->
+<!-- STACK -->
 <section id="stack">
   <div class="section">
     <div class="section-header reveal">
       <div class="section-no">03 — Stack</div>
-      <div class="section-divider" style="margin-top:12px;"></div>
+      <div class="section-divider section-divider--mt" aria-hidden="true"></div>
       <h2>技術スタック</h2>
     </div>
     <div class="stack-grid">
@@ -848,32 +693,37 @@
   </div>
 </section>
 
-<!-- ── FOOTER ── -->
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
     <a href="#hero" class="footer-logo">A.I. Portfolio</a>
     <p class="footer-copy">
       my-first-project · 2026 · Built with
-      <a href="https://claude.ai/code" target="_blank" rel="noopener">Claude Code</a>
+      <!-- [Fix] Security: rel="noreferrer" added -->
+      <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">Claude Code</a>
     </p>
   </div>
 </footer>
 
-<!-- ── LIGHTBOX ── -->
-<!-- YAML: components.modal -->
-<div id="lightbox" role="dialog" aria-modal="true" aria-label="画像ビューア" onclick="closeLightboxOnBg(event)">
+<!-- LIGHTBOX -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="画像ビューア">
   <div class="lb-inner">
-    <button class="lb-close" onclick="closeLightbox()">✕ 閉じる</button>
-    <button class="lb-nav lb-prev" onclick="lbStep(-1)" aria-label="前の画像">&#8592;</button>
+    <button class="lb-close" id="lbClose">✕ 閉じる</button>
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="前の画像">&#8592;</button>
     <img class="lb-img" id="lbImg" src="" alt="">
-    <button class="lb-nav lb-next" onclick="lbStep(1)"  aria-label="次の画像">&#8594;</button>
-    <p class="lb-caption" id="lbCaption"></p>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="次の画像">&#8594;</button>
+    <!-- [Fix] Accessibility: aria-live for screen reader announcement on image change -->
+    <p class="lb-caption" id="lbCaption" aria-live="polite" aria-atomic="true"></p>
   </div>
 </div>
 
 <script>
-  /* ── LIGHTBOX ── */
-  const images = [
+/* [Fix] Readability: IIFE to avoid global scope pollution */
+(function () {
+  'use strict';
+
+  /* [Fix] Readability: descriptive variable names */
+  const PORTFOLIO_IMAGES = [
     { src: './images/code-reviewer-report.png',   cap: 'code-reviewer — セキュリティレポート全文' },
     { src: './images/code-reviewer-issues.png',   cap: 'code-reviewer — 問題一覧テーブル' },
     { src: './images/code-reviewer-fixes-1.png',  cap: 'code-reviewer — SQL・ハッシュ修正コード' },
@@ -890,39 +740,92 @@
     { src: './images/chrome-news-1.png',          cap: 'Chrome Automation — ニュース取得結果 (全サイト)' },
     { src: './images/chrome-news-rendered.png',   cap: 'Chrome Automation — レンダリングされた結果画面' },
   ];
-  let lbIdx = 0;
+
+  /* [Fix] Readability: descriptive variable name */
+  let lightboxIndex = 0;
+  /* [Fix] Accessibility: track last focused element for focus return */
+  let lastFocusedElement = null;
+
+  const lightbox  = document.getElementById('lightbox');
+  const lbImg     = document.getElementById('lbImg');
+  const lbCaption = document.getElementById('lbCaption');
+
+  function renderLightbox() {
+    const item = PORTFOLIO_IMAGES[lightboxIndex];
+    /* [Fix] ErrorHandling: onerror handler for broken images */
+    lbImg.onerror = () => {
+      lbImg.alt = '画像を読み込めませんでした';
+    };
+    lbImg.src = item.src;
+    lbImg.alt = item.cap;
+    lbCaption.textContent = item.cap + '  [' + (lightboxIndex + 1) + ' / ' + PORTFOLIO_IMAGES.length + ']';
+  }
 
   function openLightbox(i) {
-    lbIdx = i; renderLb();
-    document.getElementById('lightbox').classList.add('open');
+    /* [Fix] ErrorHandling: bounds check */
+    if (i < 0 || i >= PORTFOLIO_IMAGES.length) return;
+    /* [Fix] Accessibility: save focus origin */
+    lastFocusedElement = document.activeElement;
+    lightboxIndex = i;
+    renderLightbox();
+    lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
+    /* [Fix] Accessibility: move focus into modal (WCAG 2.4.3) */
+    document.getElementById('lbClose').focus();
   }
+
   function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
+    lightbox.classList.remove('open');
     document.body.style.overflow = '';
+    /* [Fix] Accessibility: return focus to trigger element */
+    if (lastFocusedElement) lastFocusedElement.focus();
   }
-  function closeLightboxOnBg(e) {
-    if (e.target === document.getElementById('lightbox')) closeLightbox();
+
+  function stepLightbox(d) {
+    lightboxIndex = (lightboxIndex + d + PORTFOLIO_IMAGES.length) % PORTFOLIO_IMAGES.length;
+    renderLightbox();
   }
-  function lbStep(d) { lbIdx = (lbIdx + d + images.length) % images.length; renderLb(); }
-  function renderLb() {
-    document.getElementById('lbImg').src = images[lbIdx].src;
-    document.getElementById('lbImg').alt = images[lbIdx].cap;
-    document.getElementById('lbCaption').textContent =
-      images[lbIdx].cap + '  [' + (lbIdx + 1) + ' / ' + images.length + ']';
-  }
+
+  /* Lightbox button events */
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click', () => stepLightbox(-1));
+  document.getElementById('lbNext').addEventListener('click', () => stepLightbox(1));
+
+  /* Close on backdrop click */
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+  /* Keyboard navigation */
   document.addEventListener('keydown', e => {
-    if (!document.getElementById('lightbox').classList.contains('open')) return;
-    if (e.key === 'Escape')      closeLightbox();
-    if (e.key === 'ArrowLeft')   lbStep(-1);
-    if (e.key === 'ArrowRight')  lbStep(1);
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'ArrowLeft')  stepLightbox(-1);
+    if (e.key === 'ArrowRight') stepLightbox(1);
   });
 
-  /* ── FILTER TABS ── */
+  /* [Fix] Readability: event delegation for card-thumb and gallery-thumb */
+  function attachLightboxDelegation(container) {
+    container.addEventListener('click', e => {
+      const trigger = e.target.closest('[data-lb-index]');
+      if (trigger) openLightbox(Number(trigger.dataset.lbIndex));
+    });
+    /* [Fix] Accessibility: keyboard activation for role="button" */
+    container.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const trigger = e.target.closest('[data-lb-index]');
+      if (trigger) { e.preventDefault(); openLightbox(Number(trigger.dataset.lbIndex)); }
+    });
+  }
+  attachLightboxDelegation(document.getElementById('cardsGrid'));
+
+  /* FILTER TABS */
   document.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       const f = btn.dataset.filter;
       document.querySelectorAll('.card').forEach(card => {
         card.style.display = (f === 'all' || card.dataset.category === f) ? '' : 'none';
@@ -930,25 +833,53 @@
     });
   });
 
-  /* ── SCROLL REVEAL (YAML: animations.effects.fade_in) ── */
-  const ro = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); } });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+  /* [Fix] ErrorHandling: IntersectionObserver fallback for old browsers */
+  /* [Fix] Readability: descriptive variable name */
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  } else {
+    /* Fallback: show all elements immediately */
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }
 
-  /* ── SMOOTH SCROLL (JS制御 — CSS scroll-behavior を使わず) ── */
+  /* SMOOTH SCROLL (JS-controlled, no CSS scroll-behavior) */
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
-      const target = document.getElementById(a.getAttribute('href').slice(1));
+      const id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      const target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
       window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 68, behavior: 'smooth' });
     });
   });
 
-  /* ── MOBILE MENU ── */
-  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
-  function closeMenu()  { document.getElementById('navLinks').classList.remove('open'); }
+  /* MOBILE MENU */
+  const navMenuBtn = document.getElementById('navMenuBtn');
+  const navLinks   = document.getElementById('navLinks');
+
+  navMenuBtn.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    navMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  /* Close menu when a nav link is clicked */
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      navMenuBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+}());
 </script>
 </body>
 </html>
