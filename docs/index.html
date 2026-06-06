@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Claude Code で構築した Skills・SubAgents・ブラウザ自動化の実験ポートフォリオ">
-  <!-- [Fix] Security: CSP meta tag -->
+  <!-- CSP: 静的サイト (GitHub Pages) のためサーバーヘッダー制御不可。
+       unsafe-inline は インラインCSS/JSの制約上やむを得ない。
+       将来的には外部ファイル化 + nonce/hash ベース CSP への移行を推奨。-->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self';
              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
@@ -15,6 +17,8 @@
   <meta property="og:title"       content="A.I. Portfolio — Claude Code Experiments">
   <meta property="og:description" content="コードレビュー・要約・マルチエージェント・ブラウザ自動化を Claude Code で自作した記録">
   <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://novasrike3528-dot.github.io/my-first-project/">
+  <meta property="og:image"       content="https://novasrike3528-dot.github.io/my-first-project/images/code-reviewer-report.png">
   <title>A.I. Portfolio — Claude Code Experiments</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -394,6 +398,10 @@
     /* SCROLL REVEAL */
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
     .reveal.visible { opacity: 1; transform: none; }
+    /* [Fix] Accessibility: prefers-reduced-motion — アニメーション無効化 */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { transition: none; transform: none; }
+    }
 
     /* RESPONSIVE */
     @media (max-width: 900px) {
@@ -435,6 +443,9 @@
     </svg>
   </button>
 </nav>
+
+<!-- [Fix] Accessibility: <main> landmark for screen reader navigation -->
+<main id="main-content">
 
 <!-- HERO -->
 <section id="hero">
@@ -478,19 +489,17 @@
 
     <div class="filter-wrap reveal">
       <div class="filter-tabs" role="group" aria-label="カテゴリフィルター">
-        <button class="filter-tab active" data-filter="all">すべて</button>
-        <button class="filter-tab" data-filter="skill">Skills</button>
-        <button class="filter-tab" data-filter="agent">Agents</button>
-        <button class="filter-tab" data-filter="browser">Browser</button>
+        <button class="filter-tab active" data-filter="all"     type="button">すべて</button>
+        <button class="filter-tab"        data-filter="skill"   type="button">Skills</button>
+        <button class="filter-tab"        data-filter="agent"   type="button">Agents</button>
+        <button class="filter-tab"        data-filter="browser" type="button">Browser</button>
       </div>
     </div>
 
     <div class="cards-grid" id="cardsGrid">
 
       <!-- Card 1: code-reviewer -->
-      <article class="card reveal" data-category="agent">
-        <!-- [Fix] Accessibility+Readability: inline onclick → data-lb-index + event delegation -->
-        <!-- [Fix] Accessibility: tabindex="0" added to role="button" divs -->
+      <article class="card reveal" data-category="agent" aria-labelledby="card-title-1">
         <div class="card-thumb" data-lb-index="0" role="button" tabindex="0" aria-label="code-reviewerのスクリーンショットを拡大">
           <!-- [Fix] Performance: width/height from actual image dimensions (922x733) -->
           <img src="./images/code-reviewer-report.png" alt="code-reviewer — セキュリティレポート" loading="lazy" width="922" height="733">
@@ -498,7 +507,7 @@
           <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
-          <h3>code-reviewer</h3>
+          <h3 id="card-title-1">code-reviewer</h3>
           <div class="card-tags">
             <span class="tag">SubAgent</span>
             <span class="tag-outline">Security</span>
@@ -523,14 +532,14 @@
       </article>
 
       <!-- Card 2: summarize -->
-      <article class="card reveal" data-category="skill">
+      <article class="card reveal" data-category="skill" aria-labelledby="card-title-2">
         <div class="card-thumb" data-lb-index="4" role="button" tabindex="0" aria-label="summarizeスキルのスクリーンショットを拡大">
           <img src="./images/summarize-output.png" alt="summarize — 要約出力" loading="lazy" width="1443" height="550">
           <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
           <span class="thumb-count" aria-hidden="true">1 / 3</span>
         </div>
         <div class="card-body">
-          <h3>summarize スキル</h3>
+          <h3 id="card-title-2">summarize スキル</h3>
           <div class="card-tags">
             <span class="tag">Skill</span>
             <span class="tag-outline">NLP</span>
@@ -554,14 +563,14 @@
       </article>
 
       <!-- Card 3: build-and-review -->
-      <article class="card reveal" data-category="agent">
+      <article class="card reveal" data-category="agent" aria-labelledby="card-title-3">
         <div class="card-thumb" data-lb-index="7" role="button" tabindex="0" aria-label="Build &amp; Reviewのスクリーンショットを拡大">
           <img src="./images/build-review-report.png" alt="Build &amp; Review — 最終レポート" loading="lazy" width="1002" height="785">
           <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
           <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
-          <h3>Build &amp; Review</h3>
+          <h3 id="card-title-3">Build &amp; Review</h3>
           <div class="card-tags">
             <span class="tag">MultiAgent</span>
             <span class="tag-outline">Workflow</span>
@@ -586,14 +595,14 @@
       </article>
 
       <!-- Card 4: chrome automation -->
-      <article class="card reveal" data-category="browser">
+      <article class="card reveal" data-category="browser" aria-labelledby="card-title-4">
         <div class="card-thumb" data-lb-index="11" role="button" tabindex="0" aria-label="Chrome自動化のスクリーンショットを拡大">
           <img src="./images/chrome-connected.png" alt="Chrome Automation — 接続完了" loading="lazy" width="1439" height="416">
           <div class="card-thumb-overlay" aria-hidden="true">拡大表示</div>
           <span class="thumb-count" aria-hidden="true">1 / 4</span>
         </div>
         <div class="card-body">
-          <h3>Chrome Automation</h3>
+          <h3 id="card-title-4">Chrome Automation</h3>
           <div class="card-tags">
             <span class="tag">Browser</span>
             <span class="tag-outline">MCP</span>
@@ -692,6 +701,8 @@
     </div>
   </div>
 </section>
+
+</main><!-- /#main-content -->
 
 <!-- FOOTER -->
 <footer>
@@ -850,7 +861,8 @@
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
   }
 
-  /* SMOOTH SCROLL (JS-controlled, no CSS scroll-behavior) */
+  /* SMOOTH SCROLL — prefers-reduced-motion を尊重 */
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       const id = a.getAttribute('href').slice(1);
@@ -858,7 +870,10 @@
       const target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 68, behavior: 'smooth' });
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.scrollY - 68,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
     });
   });
 
